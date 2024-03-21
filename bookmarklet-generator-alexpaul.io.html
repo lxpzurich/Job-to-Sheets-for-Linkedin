@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Bookmarklet Generator [Job to sheets for LinkedIn]</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+        }
+        .generator-container {
+            background-color: #fff;
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .bookmarklet-link {
+            display: inline-block;
+            margin-top: 10px;
+            background-color: #ffcc00;
+            color: #333;
+            padding: 10px 20px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+    </style>
+    <script>
+        function generateBookmarklet() {
+            var userInput = document.getElementById("userInput").value;
+            var encodedURL = encodeURIComponent(userInput);
+            var bookmarkletTemplate = `javascript:(function()%7B%2F%2F Function to modify the URL as per the specified criteria%0Afunction modifyURL(url) %7B%0A    const questionMarkIndex %3D url.indexOf('%3F')%3B%0A    if (questionMarkIndex !%3D%3D -1) %7B%0A        return url.slice(0%2C questionMarkIndex)%3B%0A    %7D%0A    const parts %3D url.split('%2F')%3B%0A    return parts.length > 5 %3F parts.slice(0%2C 6).join('%2F') %3A url%3B%0A%7D%0A%0A%2F%2F Function to find the company name%0Afunction findCompanyName() %7B%0A    const allLinks %3D document.querySelectorAll('a')%3B%0A    for (const link of allLinks) %7B%0A        if (link.href.includes('company')) %7B%0A            if (link.children.length %3D%3D%3D 0 %7C%7C link.children%5B0%5D.tagName.toLowerCase() !%3D%3D 'div') %7B%0A                return link.textContent.trim()%3B%0A            %7D%0A        %7D%0A    %7D%0A    return "Company name not found"%3B%0A%7D%0A%0A%2F%2F Function to extract the first found location%0Afunction extractLocation() %7B%0A    const locationElement %3D document.querySelector('.job-details-job-alert__description span')%3B%0A    if (locationElement) %7B%0A        const locationText %3D locationElement.textContent.trim()%3B%0A        const regex %3D %2F%5Cb%5B%5Cw%5Cs%5D%2B%2C %5B%5Cw%5Cs%5D%2B%2C %5B%5Cw%5Cs%5D%2B%5Cb%2F%3B%0A        const matches %3D locationText.match(regex)%3B%0A        return matches %3F matches%5B0%5D %3A "Location format not recognized"%3B%0A    %7D%0A    return "Location not found"%3B%0A%7D%0A%0A%2F%2F Function to extract the job description%0Afunction extractJobDescription() %7B%0A    const aboutJobHeading %3D document.querySelector('h2.text-heading-large')%3B%0A    if (aboutJobHeading %26%26 aboutJobHeading.textContent.includes("About the job")) %7B%0A        const jobDescriptionSpan %3D aboutJobHeading.nextElementSibling%3B%0A        if (jobDescriptionSpan) %7B%0A            return jobDescriptionSpan.textContent.trim()%3B%0A        %7D%0A    %7D else %7B%0A        const jobDescriptionContent %3D document.querySelector('.jobs-description-content')%3B%0A        if (jobDescriptionContent) %7B%0A            return jobDescriptionContent.textContent.trim()%3B%0A        %7D%0A    %7D%0A    return "Job description not found"%3B%0A%7D%0A%0A%2F%2F Function to extract the work type%0Afunction extractWorkType() %7B%0A    const workTypeElement %3D document.querySelector("li%3Anth-child(1) > span > span")%3B%0A    if (workTypeElement) %7B%0A        return workTypeElement.innerText.split('%5Cn')%5B0%5D.trim()%3B%0A    %7D%0A    return "Work type not found"%3B%0A%7D%0A%0A%2F%2F Function to chunk a string%0Afunction chunkString(str%2C size) %7B%0A    const numChunks %3D Math.ceil(str.length %2F size)%3B%0A    const chunks %3D new Array(numChunks)%3B%0A%0A    for (let i %3D 0%2C o %3D 0%3B i < numChunks%3B %2B%2Bi%2C o %2B%3D size) %7B%0A        chunks%5Bi%5D %3D str.substr(o%2C size)%3B%0A    %7D%0A%0A    return chunks%3B%0A%7D%0A%0A%2F%2F Function to open a new tab for each chunk of data%0Afunction openTabsWithData(data) %7B%0A    const baseWebAppUrl %3D 'xxxxxx'%3B%0A    const chunkSize %3D 1000%3B %2F%2F Define a suitable chunk size%0A    const jobDescChunks %3D chunkString(data.jobDescription%2C chunkSize)%3B%0A%0A    console.log("Job Description Chunks%3A")%3B%0A    console.log(jobDescChunks)%3B%0A%0A    %2F%2F Open a new tab for the first call%0A    const originalUrl %3D %60%24%7BbaseWebAppUrl%7D%3F%24%7Bnew URLSearchParams(data)%7D%60%3B%0A    window.open(originalUrl%2C '_blank')%3B%0A%0A    %2F%2F Open a new tab for each chunk%0A    jobDescChunks.forEach((chunk%2C index) %3D> %7B%0A        setTimeout(() %3D> %7B%0A            console.log("Opening tab for chunk%3A"%2C chunk)%3B%0A            const isLast %3D index %3D%3D%3D jobDescChunks.length - 1%3B%0A            const chunkData %3D %7B%0A                jobDescChunk%3A chunk%2C%0A                isLast%3A isLast%0A            %7D%3B%0A            const chunkUrl %3D %60%24%7BbaseWebAppUrl%7D%3F%24%7Bnew URLSearchParams(chunkData)%7D%60%3B%0A            window.open(chunkUrl%2C '_blank')%3B%0A        %7D%2C index * 2000)%3B %2F%2F Adjust the delay as needed%0A    %7D)%3B%0A%7D%0A%0A%2F%2F Combine results from all functions into a JSON object%0Afunction combineResults() %7B%0A    return %7B%0A        jobTitle%3A document.querySelector("h1")%3F.innerText %7C%7C "H1 element not found"%2C%0A        pageURL%3A modifyURL(window.location.href)%2C%0A        workType%3A extractWorkType()%2C%0A        companyName%3A findCompanyName()%2C%0A        location%3A extractLocation()%2C%0A        jobDescription%3A extractJobDescription()%0A    %7D%3B%0A%7D%0A%0A%2F%2F Execute the script and open tabs with data%0Aconst jobData %3D combineResults()%3B%0AopenTabsWithData(jobData)%3B%7D)()%3B`;
+            bookmarkletTemplate = bookmarkletTemplate.replace('xxxxxx', encodedURL);
+
+            var bookmarkletLink = document.getElementById("bookmarkletLink");
+            bookmarkletLink.href = bookmarkletTemplate;
+            bookmarkletLink.textContent = 'Drag this to your bookmarks bar & rename';
+        }
+    </script>
+</head>
+<body>
+    <div class="generator-container">
+        <h1>Bookmarklet Generator</h1>
+        <p>Enter your Google Apps Script URL:</p>
+        <input type="text" id="userInput">
+        <button onclick="generateBookmarklet()">Generate</button>
+        <a id="bookmarkletLink" href="#" class="bookmarklet-link">Generated bookmarklet will appear here</a>
+    </div>
+</body>
+</html>
